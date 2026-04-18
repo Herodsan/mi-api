@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Test de Inteligencias Múltiples</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d0f1a;
+      --surface: #141627;
+      --card: #1a1e35;
+      --accent: #f0c040;
+      --accent2: #7c6af7;
+      --text: #e8e6f0;
+      --muted: #7a7a99;
+      --border: #2a2e50;
+      --success: #4ecca3;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── PANTALLA INICIO ── */
+    #screen-inicio {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    #screen-inicio::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,106,247,0.15) 0%, transparent 70%);
+      top: -100px; left: -100px;
+      pointer-events: none;
+    }
+    #screen-inicio::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(240,192,64,0.1) 0%, transparent 70%);
+      bottom: -50px; right: -50px;
+      pointer-events: none;
+    }
+    .inicio-badge {
+      background: rgba(124,106,247,0.15);
+      border: 1px solid rgba(124,106,247,0.4);
+      color: var(--accent2);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.4rem 1.2rem;
+      border-radius: 999px;
+      margin-bottom: 2rem;
+      animation: fadeDown 0.6s ease both;
+    }
+    .inicio-titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      animation: fadeDown 0.7s ease both;
+    }
+    .inicio-titulo span { color: var(--accent); }
+    .inicio-desc {
+      color: var(--muted);
+      text-align: center;
+      max-width: 500px;
+      line-height: 1.7;
+      font-size: 1rem;
+      margin-bottom: 2.5rem;
+      animation: fadeDown 0.8s ease both;
+    }
+    .inicio-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 420px;
+      animation: fadeDown 0.9s ease both;
+    }
+    .inicio-form label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+    .inicio-form input {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1.2rem;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .inicio-form input:focus { border-color: var(--accent2); }
+    .btn-primary {
+      background: var(--accent);
+      color: #0d0f1a;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      padding: 0.9rem 2rem;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      font-family: 'DM Sans', sans-serif;
+      margin-top: 0.5rem;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(240,192,64,0.3);
+    }
+    .inicio-info {
+      display: flex;
+      gap: 2rem;
+      margin-top: 3rem;
+      animation: fadeDown 1s ease both;
+    }
+    .info-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .info-chip strong { font-size: 1.4rem; color: var(--accent); }
+    .info-chip span { font-size: 0.75rem; color: var(--muted); }
+
+    /* ── PANTALLA TEST ── */
+    #screen-test { display: none; padding: 2rem 1rem; max-width: 680px; margin: 0 auto; }
+
+    .progress-header {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      padding: 1rem 0 1.5rem;
+      z-index: 10;
+    }
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+    .progress-label { font-size: 0.85rem; color: var(--muted); }
+    .progress-num { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
+    .progress-bar-bg {
+      height: 4px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    .pregunta-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s, transform 0.15s;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+    }
+    .pregunta-card:hover { border-color: var(--accent2); transform: translateX(4px); }
+    .pregunta-card.seleccionado-v {
+      border-color: var(--success);
+      background: rgba(78,204,163,0.07);
+    }
+    .pregunta-card.seleccionado-f {
+      border-color: #ff6b6b;
+      background: rgba(255,107,107,0.07);
+    }
+    .pregunta-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 32px;
+    }
+    .pregunta-texto { flex: 1; line-height: 1.6; font-size: 0.97rem; }
+    .pregunta-vf {
+      display: flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .btn-vf {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-vf:hover { border-color: var(--text); color: var(--text); }
+    .btn-vf.activo-v { background: var(--success); border-color: var(--success); color: #0d0f1a; }
+    .btn-vf.activo-f { background: #ff6b6b; border-color: #ff6b6b; color: #fff; }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #0d0f1a;
+      font-weight: 700;
+      font-size: 1.05rem;
+      border: none;
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      font-family: 'DM Sans', sans-serif;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
+    .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ── PANTALLA RESULTADO ── */
+    #screen-resultado { display: none; max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem; }
+
+    .resultado-header { text-align: center; margin-bottom: 3rem; }
+    .resultado-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      margin-bottom: 0.5rem;
+    }
+    .resultado-header p { color: var(--muted); }
+    .resultado-nombre { color: var(--accent); }
+
+    .inteligencias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .intel-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    .intel-card:hover { transform: translateY(-3px); }
+    .intel-card.destacado {
+      border-color: var(--accent);
+      background: rgba(240,192,64,0.06);
+    }
+    .intel-card.sobresaliente {
+      border-color: var(--success);
+      background: rgba(78,204,163,0.06);
+    }
+    .intel-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      margin-bottom: 0.8rem;
+      display: inline-block;
+    }
+    .tag-normal { background: rgba(122,122,153,0.2); color: var(--muted); }
+    .tag-habilidad { background: rgba(240,192,64,0.2); color: var(--accent); }
+    .tag-sobresaliente { background: rgba(78,204,163,0.2); color: var(--success); }
+
+    .intel-nombre {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+    .intel-score {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+    }
+    .intel-score span { font-size: 1rem; color: var(--muted); font-weight: 400; }
+    .barra-bg {
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .barra-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      transition: width 1s ease;
+      width: 0;
+    }
+    .barra-fill.verde { background: linear-gradient(90deg, var(--success), #a8edda); }
+
+    .btn-reiniciar {
+      display: block;
+      margin: 0 auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.8rem 2rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .btn-reiniciar:hover { border-color: var(--accent); color: var(--accent); }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeDown 0.5s ease both; }
+
+    @media (max-width: 500px) {
+      .pregunta-card { flex-wrap: wrap; }
+      .pregunta-vf { margin-left: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ INICIO ══════════════ -->
+<div id="screen-inicio">
+  <div class="inicio-badge">Teoría de Howard Gardner</div>
+  <h1 class="inicio-titulo">Test de<br/><span>Inteligencias</span><br/>Múltiples</h1>
+  <p class="inicio-desc">Descubre cuáles son tus habilidades más fuertes respondiendo 35 afirmaciones con Verdadero o Falso.</p>
+
+  <div class="inicio-form">
+    <label for="nombre-input">Tu nombre completo</label>
+    <input type="text" id="nombre-input" placeholder="Ej: María González" autocomplete="off"/>
+    <button class="btn-primary" onclick="iniciarTest()">Comenzar Test →</button>
+  </div>
+
+  <div class="inicio-info">
+    <div class="info-chip"><strong>35</strong><span>preguntas</span></div>
+    <div class="info-chip"><strong>7</strong><span>inteligencias</span></div>
+    <div class="info-chip"><strong>~5 min</strong><span>duración</span></div>
+  </div>
+  <a href="resultados.html" style="margin-top:1.2rem; color:#7a7a99; font-size:0.88rem; text-decoration:none; border-bottom:1px solid #2a2e50; padding-bottom:2px;" onmouseover="this.style.color='#f0c040'" onmouseout="this.style.color='#7a7a99'">📊 Ver resultados de todos →</a>
+</div>
+
+<!-- ══════════════ TEST ══════════════ -->
+<div id="screen-test">
+  <div class="progress-header">
+    <div class="progress-top">
+      <span class="progress-label">Progreso</span>
+      <span class="progress-num" id="progress-text">0 / 35</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-bar"></div>
+    </div>
+  </div>
+  <div id="preguntas-container"></div>
+  <button class="btn-submit" id="btn-ver-resultado" onclick="verResultado()" disabled>
+    Ver mis resultados →
+  </button>
+</div>
+
+<!-- ══════════════ RESULTADO ══════════════ -->
+<div id="screen-resultado">
+  <div class="resultado-header">
+    <h2>Resultados de <span class="resultado-nombre" id="nombre-resultado"></span></h2>
+    <p>Así están distribuidas tus inteligencias múltiples</p>
+  </div>
+  <div id="aviso-guardado" style="display:none; background:rgba(78,204,163,0.12); border:1px solid #4ecca3; color:#4ecca3; border-radius:10px; padding:0.8rem 1.2rem; margin-bottom:1.5rem; font-size:0.9rem;"></div>
+  <div class="inteligencias-grid" id="resultado-grid"></div>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+  <button class="btn-reiniciar" onclick="reiniciar()">↩ Hacer el test de nuevo</button>
+  <a href="resultados.html" style="display:inline-block;background:var(--accent);color:#0d0f1a;font-weight:700;font-size:0.95rem;padding:0.8rem 2rem;border-radius:10px;text-decoration:none;transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(240,192,64,0.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">📊 Ver resultados generales</a>
+</div>
+</div>
+
+<script>
+  const PREGUNTAS = [
+    "Prefiero hacer un mapa que explicarle a alguien cómo tiene que llegar.",
+    "Si estoy enojado(a) o contento(a) generalmente sé exactamente por qué.",
+    "Sé tocar (o antes sabía tocar) un instrumento musical.",
+    "Asocio la música con mis estados de ánimo.",
+    "Puedo sumar o multiplicar mentalmente con mucha rapidez.",
+    "Puedo ayudar a un amigo a manejar sus sentimientos porque yo lo pude hacer antes.",
+    "Me gusta trabajar con calculadoras y computadores.",
+    "Aprendo rápido a bailar un ritmo nuevo.",
+    "No me es difícil decir lo que pienso en el curso de una discusión o debate.",
+    "Disfruto de una buena charla, discurso o sermón.",
+    "Siempre distingo el norte del sur, esté donde esté.",
+    "Me gusta reunir grupos de personas en una fiesta o en un evento especial.",
+    "La vida me parece vacía sin música.",
+    "Siempre entiendo los gráficos que vienen en las instrucciones de equipos o instrumentos.",
+    "Me gusta hacer rompecabezas y entretenerme con juegos electrónicos.",
+    "Me fue fácil aprender a andar en bicicleta (o patines).",
+    "Me enojo cuando oigo una discusión o una afirmación que parece ilógica.",
+    "Soy capaz de convencer a otros que sigan mis planes.",
+    "Tengo buen sentido de equilibrio y coordinación.",
+    "Con frecuencia veo configuraciones y relaciones entre números con más rapidez que otros.",
+    "Me gusta construir modelos (o hacer esculturas).",
+    "Tengo agudeza para encontrar el significado de las palabras.",
+    "Puedo mirar un objeto de una manera y con la misma facilidad verlo desde otro ángulo.",
+    "Con frecuencia hago la conexión entre una pieza de música y algún evento de mi vida.",
+    "Me gusta trabajar con números y figuras.",
+    "Me gusta sentarme silenciosamente y reflexionar sobre mis sentimientos íntimos.",
+    "Con sólo mirar la forma de construcciones y estructuras me siento a gusto.",
+    "Me gusta tararear, silbar y cantar en la ducha o cuando estoy solo(a).",
+    "Soy bueno(a) para el atletismo.",
+    "Me gusta escribir cartas detalladas a mis amigos.",
+    "Generalmente me doy cuenta de la expresión que tengo en la cara.",
+    "Me doy cuenta de las expresiones en la cara de otras personas.",
+    "Me mantengo \"en contacto\" con mis estados de ánimo. No me cuesta identificarlos.",
+    "Me doy cuenta de los estados de ánimo de otros.",
+    "Me doy cuenta bastante bien de lo que otros piensan de mí."
+  ];
+
+  // Mapeo: inteligencia -> preguntas que suman (índice 0-based)
+  // A) Verbal: 9,10,17,22,30 → índices 0-based: 8,9,16,21,29
+  // B) Lógico-mat: 5,7,15,20,25 → 4,6,14,19,24
+  // C) Visual-esp: 1,11,14,23,27 → 0,10,13,22,26
+  // D) Kinestésica: 8,16,19,21,29 → 7,15,18,20,28
+  // E) Musical: 3,4,13,24,28 → 2,3,12,23,27
+  // F) Intrapersonal: 2,6,26,31,33 → 1,5,25,30,32
+  // G) Interpersonal: 12,18,32,34,35 → 11,17,31,33,34
+  const INTELIGENCIAS = [
+    { nombre: "Verbal · Lingüística",      preguntas: [8,9,16,21,29],   emoji: "📝" },
+    { nombre: "Lógico · Matemática",       preguntas: [4,6,14,19,24],   emoji: "🔢" },
+    { nombre: "Visual · Espacial",         preguntas: [0,10,13,22,26],  emoji: "🗺️" },
+    { nombre: "Kinestésica · Corporal",    preguntas: [7,15,18,20,28],  emoji: "🏃" },
+    { nombre: "Musical · Rítmica",         preguntas: [2,3,12,23,27],   emoji: "🎵" },
+    { nombre: "Intrapersonal",             preguntas: [1,5,25,30,32],   emoji: "🧘" },
+    { nombre: "Interpersonal",             preguntas: [11,17,31,33,34], emoji: "🤝" }
+  ];
+
+  let respuestas = {}; // { indice: 'V' | 'F' }
+  let nombreUsuario = '';
+
+  function iniciarTest() {
+    const input = document.getElementById('nombre-input').value.trim();
+    if (!input) { alert('Por favor escribe tu nombre.'); return; }
+    nombreUsuario = input;
+    document.getElementById('screen-inicio').style.display = 'none';
+    document.getElementById('screen-test').style.display = 'block';
+    renderPreguntas();
+  }
+
+  function renderPreguntas() {
+    const container = document.getElementById('preguntas-container');
+    container.innerHTML = '';
+    PREGUNTAS.forEach((texto, i) => {
+      const card = document.createElement('div');
+      card.className = 'pregunta-card fade-in';
+      card.id = `card-${i}`;
+      card.style.animationDelay = `${i * 0.03}s`;
+      card.innerHTML = `
+        <div class="pregunta-num">${i+1}</div>
+        <div class="pregunta-texto">${texto}</div>
+        <div class="pregunta-vf">
+          <button class="btn-vf" id="v-${i}" onclick="responder(${i},'V')">V</button>
+          <button class="btn-vf" id="f-${i}" onclick="responder(${i},'F')">F</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function responder(i, valor) {
+    respuestas[i] = valor;
+    // Actualizar visual
+    const btnV = document.getElementById(`v-${i}`);
+    const btnF = document.getElementById(`f-${i}`);
+    const card = document.getElementById(`card-${i}`);
+    btnV.className = 'btn-vf' + (valor === 'V' ? ' activo-v' : '');
+    btnF.className = 'btn-vf' + (valor === 'F' ? ' activo-f' : '');
+    card.className = 'pregunta-card ' + (valor === 'V' ? 'seleccionado-v' : 'seleccionado-f');
+
+    // Progreso
+    const total = Object.keys(respuestas).length;
+    document.getElementById('progress-text').textContent = `${total} / 35`;
+    document.getElementById('progress-bar').style.width = `${(total/35)*100}%`;
+    document.getElementById('btn-ver-resultado').disabled = total < 35;
+  }
+
+  async function guardarEnAPI(puntajesOriginales) {
+    try {
+      const body = {
+        nombre:        nombreUsuario,
+        verbal:        puntajesOriginales[0].score,
+        logicoMat:     puntajesOriginales[1].score,
+        visualEsp:     puntajesOriginales[2].score,
+        kinestesica:   puntajesOriginales[3].score,
+        musical:       puntajesOriginales[4].score,
+        intrapersonal: puntajesOriginales[5].score,
+        interpersonal: puntajesOriginales[6].score,
+      };
+      const res = await fetch('http://localhost:3000/api/resultados', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (data.success) {
+        const aviso = document.getElementById('aviso-guardado');
+        aviso.style.display = 'block';
+        aviso.textContent = `✅ Resultado guardado en la base de datos (ID: ${data.data.id})`;
+      }
+    } catch (e) {
+      console.error('No se pudo guardar en la API:', e);
+    }
+  }
+
+  function verResultado() {
+    // Calcular puntajes (en orden original para enviar a API)
+    const puntajes = INTELIGENCIAS.map(intel => {
+      const score = intel.preguntas.filter(p => respuestas[p] === 'V').length;
+      const max = intel.preguntas.length;
+      return { ...intel, score, max };
+    });
+
+    // Guardar en la API
+    guardarEnAPI(puntajes);
+
+    // Renderizar
+    document.getElementById('nombre-resultado').textContent = nombreUsuario;
+    const grid = document.getElementById('resultado-grid');
+    grid.innerHTML = '';
+
+    puntajes.sort((a,b) => b.score - a.score);
+
+    puntajes.forEach(({ nombre, emoji, score, max }) => {
+      const sobresaliente = score === 5;
+      const habilidad = score >= 4;
+      const porcentaje = Math.round((score / max) * 100);
+
+      const card = document.createElement('div');
+      card.className = `intel-card fade-in ${sobresaliente ? 'sobresaliente' : habilidad ? 'destacado' : ''}`;
+
+      let tagClass = 'tag-normal', tagLabel = 'En desarrollo';
+      if (sobresaliente) { tagClass = 'tag-sobresaliente'; tagLabel = '⭐ Sobresaliente'; }
+      else if (habilidad) { tagClass = 'tag-habilidad'; tagLabel = '✓ Habilidad marcada'; }
+
+      card.innerHTML = `
+        <span class="intel-tag ${tagClass}">${tagLabel}</span>
+        <div class="intel-nombre">${emoji} ${nombre}</div>
+        <div class="intel-score">${score} <span>/ ${max} pts</span></div>
+        <div class="barra-bg">
+          <div class="barra-fill ${sobresaliente ? 'verde' : ''}" data-pct="${porcentaje}"></div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    document.getElementById('screen-test').style.display = 'none';
+    document.getElementById('screen-resultado').style.display = 'block';
+
+    // Animar barras
+    setTimeout(() => {
+      document.querySelectorAll('.barra-fill').forEach(b => {
+        b.style.width = b.dataset.pct + '%';
+      });
+    }, 100);
+  }
+
+  function reiniciar() {
+    respuestas = {};
+    document.getElementById('screen-resultado').style.display = 'none';
+    document.getElementById('screen-inicio').style.display = 'flex';
+    document.getElementById('nombre-input').value = '';
+  }
+</script>
+</body>
+</html>

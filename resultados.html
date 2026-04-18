@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resultados — Test de Inteligencias Múltiples</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d0f1a;
+      --surface: #141627;
+      --card: #1a1e35;
+      --accent: #f0c040;
+      --accent2: #7c6af7;
+      --text: #e8e6f0;
+      --muted: #7a7a99;
+      --border: #2a2e50;
+      --success: #4ecca3;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header {
+      padding: 2.5rem 2rem 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 900;
+    }
+    .header-left h1 span { color: var(--accent); }
+    .header-left p { color: var(--muted); font-size: 0.9rem; margin-top: 0.3rem; }
+
+    .btn-volver {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-block;
+    }
+    .btn-volver:hover { border-color: var(--accent); color: var(--accent); }
+
+    .stats-bar {
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      padding: 0 2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .stat-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.8rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .stat-chip strong { font-size: 1.5rem; color: var(--accent); font-family: 'Playfair Display', serif; }
+    .stat-chip span { font-size: 0.75rem; color: var(--muted); }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 2rem 4rem; }
+
+    /* Estado de carga / vacío */
+    .estado {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+    .estado .icono { font-size: 3rem; margin-bottom: 1rem; }
+    .estado p { font-size: 1rem; }
+
+    /* Tabla de personas */
+    .tabla-header {
+      display: grid;
+      grid-template-columns: 2fr 1.5fr 1fr 1fr;
+      gap: 1rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .persona-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 0.8rem;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+      animation: fadeIn 0.4s ease both;
+    }
+    .persona-card:hover { border-color: var(--accent2); transform: translateX(4px); }
+    .persona-card.abierto { border-color: var(--accent); }
+
+    .persona-fila {
+      display: grid;
+      grid-template-columns: 2fr 1.5fr 1fr 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+    .persona-nombre { font-weight: 600; font-size: 1rem; }
+    .persona-fecha { color: var(--muted); font-size: 0.82rem; }
+    .mejor-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(240,192,64,0.12);
+      border: 1px solid rgba(240,192,64,0.3);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .chevron {
+      color: var(--muted);
+      font-size: 0.8rem;
+      transition: transform 0.3s;
+      text-align: right;
+    }
+    .persona-card.abierto .chevron { transform: rotate(180deg); }
+
+    /* Detalle expandido */
+    .detalle {
+      display: none;
+      margin-top: 1.2rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--border);
+    }
+    .persona-card.abierto .detalle { display: block; }
+
+    .barras-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.8rem;
+    }
+    .barra-item { display: flex; flex-direction: column; gap: 0.4rem; }
+    .barra-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+    }
+    .barra-label span:first-child { color: var(--muted); }
+    .barra-label span:last-child { color: var(--text); font-weight: 600; }
+    .barra-bg {
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .barra-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      transition: width 0.8s ease;
+      width: 0;
+    }
+    .barra-fill.top { background: linear-gradient(90deg, var(--success), #a8edda); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 560px) {
+      .tabla-header { display: none; }
+      .persona-fila { grid-template-columns: 1fr auto; }
+      .persona-fecha, .mejor-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Resultados del <span>Test</span></h1>
+    <p>Personas que completaron el test de inteligencias múltiples</p>
+  </div>
+  <a href="index.html" class="btn-volver">← Ir al test</a>
+</header>
+
+<div class="stats-bar" id="stats-bar"></div>
+
+<div class="container">
+  <div class="tabla-header">
+    <span>Nombre</span>
+    <span>Mejor inteligencia</span>
+    <span>Fecha</span>
+    <span></span>
+  </div>
+  <div id="lista"></div>
+</div>
+
+<script>
+  const NOMBRES = {
+    verbal:        { label: "Verbal · Lingüística",   emoji: "📝", key: "verbal" },
+    logicoMat:     { label: "Lógico · Matemática",    emoji: "🔢", key: "logicoMat" },
+    visualEsp:     { label: "Visual · Espacial",      emoji: "🗺️", key: "visualEsp" },
+    kinestesica:   { label: "Kinestésica · Corporal", emoji: "🏃", key: "kinestesica" },
+    musical:       { label: "Musical · Rítmica",      emoji: "🎵", key: "musical" },
+    intrapersonal: { label: "Intrapersonal",           emoji: "🧘", key: "intrapersonal" },
+    interpersonal: { label: "Interpersonal",           emoji: "🤝", key: "interpersonal" },
+  };
+
+  const MAXIMOS = {
+    verbal: 5, logicoMat: 5, visualEsp: 5, kinestesica: 5, musical: 5, intrapersonal: 5, interpersonal: 5
+  };
+
+  function getMejor(r) {
+    return Object.keys(NOMBRES).reduce((a, b) => r[a] >= r[b] ? a : b);
+  }
+
+  function formatFecha(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
+  }
+
+  function renderStats(data) {
+    // Contar cuál inteligencia es la mejor más veces
+    const conteo = {};
+    data.forEach(r => {
+      const m = getMejor(r);
+      conteo[m] = (conteo[m] || 0) + 1;
+    });
+    const masComun = Object.entries(conteo).sort((a,b) => b[1]-a[1])[0];
+
+    document.getElementById('stats-bar').innerHTML = `
+      <div class="stat-chip">
+        <strong>${data.length}</strong>
+        <span>personas evaluadas</span>
+      </div>
+      ${masComun ? `<div class="stat-chip">
+        <strong>${NOMBRES[masComun[0]].emoji} ${masComun[1]}</strong>
+        <span>con ${NOMBRES[masComun[0]].label}</span>
+      </div>` : ''}
+    `;
+  }
+
+  function toggleCard(id) {
+    const card = document.getElementById('card-' + id);
+    card.classList.toggle('abierto');
+    // Animar barras al abrir
+    if (card.classList.contains('abierto')) {
+      card.querySelectorAll('.barra-fill').forEach(b => {
+        b.style.width = b.dataset.pct + '%';
+      });
+    }
+  }
+
+  function renderLista(data) {
+    const lista = document.getElementById('lista');
+    if (data.length === 0) {
+      lista.innerHTML = `<div class="estado"><div class="icono">📭</div><p>Aún no hay resultados guardados.</p></div>`;
+      return;
+    }
+
+    lista.innerHTML = data.map((r, i) => {
+      const mejorKey = getMejor(r);
+      const mejor = NOMBRES[mejorKey];
+      const fecha = formatFecha(r.creadoEn);
+
+      const barras = Object.entries(NOMBRES).map(([key, info]) => {
+        const score = r[key];
+        const max = MAXIMOS[key];
+        const pct = Math.round((score / max) * 100);
+        const esTop = key === mejorKey;
+        return `
+          <div class="barra-item">
+            <div class="barra-label">
+              <span>${info.emoji} ${info.label}</span>
+              <span>${score}/${max}</span>
+            </div>
+            <div class="barra-bg">
+              <div class="barra-fill ${esTop ? 'top' : ''}" data-pct="${pct}"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="persona-card" id="card-${r.id}" onclick="toggleCard(${r.id})" style="animation-delay:${i*0.06}s">
+          <div class="persona-fila">
+            <div class="persona-nombre">👤 ${r.nombre}</div>
+            <div><span class="mejor-badge">${mejor.emoji} ${mejor.label}</span></div>
+            <div class="persona-fecha">${fecha}</div>
+            <div class="chevron">▼</div>
+          </div>
+          <div class="detalle">
+            <div class="barras-grid">${barras}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function cargar() {
+    const lista = document.getElementById('lista');
+    lista.innerHTML = `<div class="estado"><div class="icono">⏳</div><p>Cargando resultados...</p></div>`;
+    try {
+      const res = await fetch('http://localhost:3000/api/resultados');
+      const data = await res.json();
+      renderStats(data.data);
+      renderLista(data.data);
+    } catch (e) {
+      lista.innerHTML = `<div class="estado"><div class="icono">⚠️</div><p>No se pudo conectar con el servidor.<br/>Asegúrate de que esté corriendo en <strong>localhost:3000</strong></p></div>`;
+    }
+  }
+
+  cargar();
+</script>
+</body>
+</html>
